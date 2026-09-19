@@ -69,7 +69,7 @@ def test_post_preserves_complete_core_result_and_schedule(client):
     assert {c["kind"] for c in result["comparisons"]} == {
         "in_state_public", "community_college_transfer", "same_school_different_major",
     }
-    assert all(c["status"] == "not_implemented" and c["result"] is None for c in result["comparisons"])
+    assert all(c["status"] == "ready" and c["result"] is not None for c in result["comparisons"])
     json.dumps(result, allow_nan=False)
 
 
@@ -214,3 +214,82 @@ def test_openapi_documents_full_response_and_only_two_business_routes(client):
     assert set(schema["paths"]) == {"/analyze", "/schools/{school_id}/majors"}
     fields = schema["components"]["schemas"]["AnalysisResponse"]["properties"]
     assert {"schedule", "comparisons", "assumptions", "median_earnings_four_years_after_completion"} <= fields.keys()
+
+
+def test_real_comparisons_use_cached_costs_and_exact_earnings(client):
+    result = client.post("/analyze", json=payload()).json()
+    public, transfer, different = result["comparisons"]
+    assert public["result"]["school"]["id"] == 214777
+    assert public["result"]["allocation"]["amount_borrowed"] == 74872
+    assert public["original_annual_tuition"] == 21926
+    assert public["annual_tuition"] == [20644] * 4
+    assert transfer["annual_borrowing"] == [2916, 2916, 20000, 20000]
+    assert transfer["result"]["allocation"]["amount_borrowed"] == 45832
+    assert transfer["annual_tuition"] == [4842, 4842, 21926, 21926]
+    assert transfer["result"]["major"] == result["major"]
+    assert different["result"]["major"]["code"] != result["major"]["code"]
+    assert different["result"]["monthly_payment"] == result["monthly_payment"]
+    for item in result["comparisons"]:
+        scenario = item["result"]
+        choices = client.get(f"/schools/{scenario['school']['id']}/majors").json()["majors"]
+        assert scenario["major"] in choices
+        assert scenario["data_source"] == "seed cache"
+        assert len(scenario["schedule"]) == 120
+        assert scenario["schedule"][-1]["remaining_balance"] == 0
+        assert scenario["total_repaid"] == pytest.approx(fsum(row["payment"] for row in scenario["schedule"]))
+        assert item["assumptions"]
+
+
+@pytest.mark.parametrize("school_id", [211440, 193900])
+def test_private_school_comparisons_have_three_real_results(client, school_id):
+    public_codes = {p["code"] for p in client.get('/schools/215293/majors').json()["majors"]}
+    program = next(p for p in client.get(f'/schools/{school_id}/majors').json()["majors"] if p["code"] in public_codes)
+    result = client.post('/analyze', json=payload(school_id=school_id, major={"code": program["code"]})).json()
+    assert all(item["status"] == "ready" for item in result["comparisons"])
+    public, transfer, different = result["comparisons"]
+    assert public["result"]["allocation"]["amount_borrowed"] < 80000
+    assert transfer["result"]["allocation"]["amount_borrowed"] < 80000
+    assert different["result"]["allocation"]["amount_borrowed"] == 80000
+
+
+def test_optional_candidate_cache_error_does_not_lose_main_result(client, monkeypatch):
+    from data import CacheError
+
+    original = scorecard.ScorecardClient.get_school
+
+    def read(self, school_id):
+        if school_id == 214777:
+            raise CacheError("Test missing/corrupt candidate cache")
+        return original(self, school_id)
+
+    monkeypatch.setattr(scorecard.ScorecardClient, "get_school", read)
+    response = client.post('/analyze', json=payload())
+    assert response.status_code == 200
+    public, transfer, different = response.json()["comparisons"]
+    assert public["status"] == "unavailable" and public["result"] is None
+    assert transfer["status"] == different["status"] == "ready"
+
+
+def test_sparse_cache_returns_explicit_unavailable_comparisons(tmp_path):
+    seed_school(tmp_path, 60000)
+    with TestClient(create_app(seed_dir=tmp_path)) as client:
+        response = client.post('/analyze', json=payload(school_id=1))
+        assert response.status_code == 200
+        assert all(item["status"] == "unavailable" and item["message"] for item in response.json()["comparisons"])
+
+
+def test_api_comparisons_preserve_rate_tax_and_term_overrides(client):
+    options = {"private_rate": .03, "federal_rate": .01, "term_months": 72,
+               "local_tax_rate": .02, "subsidized_fraction": .25, "grace_months": 3,
+               "dependent": False}
+    response = client.post('/analyze', json=payload(overrides=options))
+    assert response.status_code == 200
+    for item in response.json()["comparisons"]:
+        result = item["result"]
+        assert result["assumptions"]["private_rate"] == .03
+        assert result["assumptions"]["federal_rate"] == .01
+        assert result["assumptions"]["subsidized_fraction_of_federal_debt"] == .25
+        assert result["assumptions"]["dependent_undergraduate"] is False
+        assert result["assumptions"]["grace_months"] == 3
+        assert result["taxes"]["local_tax_rate"] == .02
+        assert len(result["schedule"]) == 72

@@ -1,6 +1,7 @@
 """Combine loan consequences using median earnings four years after completion."""
 
 from math import fsum
+from collections.abc import Sequence
 
 from .amortization import amortization_schedule, monthly_payment
 from .burden import assess_burden
@@ -26,6 +27,7 @@ def analyze(
     years_in_school: int = DEFAULT_YEARS_IN_SCHOOL,
     grace_months: float = DEFAULT_GRACE_MONTHS,
     local_tax_rate: float = PITTSBURGH_RESIDENT_EIT_RATE,
+    disbursement_weights: Sequence[float] | None = None,
 ) -> dict:
     """Return pure model results based on median earnings four years after completion.
 
@@ -38,10 +40,12 @@ def analyze(
         allocation["federal_principal"], federal_rate,
         subsidized_principal=allocation["subsidized_principal"],
         years_in_school=years_in_school, grace_months=grace_months,
+        disbursement_weights=disbursement_weights,
     )
     private = capitalize(
         allocation["private_principal"], private_rate,
         years_in_school=years_in_school, grace_months=grace_months,
+        disbursement_weights=disbursement_weights,
     )
     federal_payment = monthly_payment(federal["repayment_principal"], federal_rate, term_months)
     private_payment = monthly_payment(private["repayment_principal"], private_rate, term_months)
@@ -100,7 +104,10 @@ def analyze(
             "term_months": term_months,
             "years_in_school": years_in_school,
             "grace_months": grace_months,
-            "disbursement_timing": "Equal academic-year amounts at each year's midpoint.",
+            "disbursement_timing": (
+                "Equal academic-year amounts at each year's midpoint." if disbursement_weights is None else
+                "Path-specific academic-year amounts at each year's midpoint; federal, subsidized, and private shares allocated proportionally across years."
+            ),
             "interest_rates": "One fixed rate per loan type applied to all modeled disbursements.",
             "private_accrual": "Simple interest during enrollment and grace, capitalized at repayment; no private fees modeled.",
             "federal_limits": "Aggregate-cap estimate per AGENTS.md; annual limit conflicts are reported separately.",

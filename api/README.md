@@ -40,9 +40,21 @@ capitalization, gross-income burden benchmarks, take-home share, taxes,
 assumptions, and annual-limit warnings. It also includes school costs, the exact
 selected major, and `data_source="seed cache"`.
 
-The response includes the three named comparison entries, each with
-`status="not_implemented"` and `result=null`. Step 6 implements the comparison
-engine; this step does not invent alternative borrowing amounts or results.
+The response includes three comparison entries: another in-state public school,
+two years at CCAC followed by two at the selected school, and another major at
+the same school. `status="ready"` includes a full school analysis in `result`,
+including its schedule, taxes, burden, loan allocation, and annual-limit warnings.
+`status="unavailable"` has `result=null` and an explicit `message` explaining
+missing coverage, tuition, cache data, or incompatible transfer duration/credential.
+Optional unavailable candidates do not discard the primary estimate.
+
+Each entry also returns `assumptions`, `annual_borrowing`, `annual_tuition`,
+`original_annual_tuition`, and signed `borrowing_reduction`. The cost scenarios
+hold other spending and funding fixed, changing annual borrowing dollar for
+dollar with published in-state tuition, floored at zero. Transfer accrual follows
+each year's actual estimated borrowing. The other-major path keeps debt fixed.
+All user overrides are preserved. See [the comparison model](../core/README.md)
+for selection rules, scope, and limitations.
 
 `overrides` is optional. Supported fields are `subsidized_fraction`, `dependent`,
 `federal_rate`, `private_rate`, `term_months`, `years_in_school`, `grace_months`,
@@ -72,5 +84,7 @@ Run `.venv/bin/python -m pytest`. Endpoint tests use FastAPI's in-process client
 the suite blocks sockets and DNS, and endpoint tests also block Scorecard HTTP
 calls and API-key reads. Both endpoints are exercised against all five real
 seeded schools, with synthetic cached records for suppression and zero/low
-median earnings four years after completion. No browser rendering or comparison
-calculations are tested in this step.
+median earnings four years after completion. Comparison tests verify cached
+program identities, tuition arithmetic, transfer timing, preserved overrides,
+missing candidates, and complete schedules. The frontend browser suite is run
+with `npm --prefix web test`.

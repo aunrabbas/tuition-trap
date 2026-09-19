@@ -70,15 +70,7 @@ class ScheduleRow(BaseModel):
     cumulative_interest: float
 
 
-class ComparisonScenario(BaseModel):
-    kind: Literal["in_state_public", "community_college_transfer", "same_school_different_major"]
-    label: str
-    status: Literal["not_implemented"]
-    message: str
-    result: None = None
-
-
-class AnalysisResponse(BaseModel):
+class SchoolAnalysis(BaseModel):
     school: dict[str, Any]
     major: Major
     data_source: Literal["seed cache"]
@@ -101,4 +93,20 @@ class AnalysisResponse(BaseModel):
     burden: dict[str, Any]
     annual_limit_warnings: list[dict[str, Any]]
     assumptions: dict[str, Any]
+
+
+class ComparisonScenario(BaseModel):
+    kind: Literal["in_state_public", "community_college_transfer", "same_school_different_major"]
+    label: str
+    status: Literal["ready", "unavailable"]
+    message: str
+    result: SchoolAnalysis | None
+    assumptions: list[str]
+    annual_borrowing: list[float]
+    original_annual_tuition: float | None
+    annual_tuition: list[float]
+    borrowing_reduction: float | None
+
+
+class AnalysisResponse(SchoolAnalysis):
     comparisons: list[ComparisonScenario]

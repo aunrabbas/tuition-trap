@@ -8,7 +8,9 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
 from core import analyze
+from core.comparisons import compare_paths
 from data import CacheError, CacheMissError, ScorecardClient, ScorecardError
+from data.comparisons import comparison_catalog
 from data.scorecard import ROOT
 from .models import AnalysisRequest, AnalysisResponse, MajorsResponse
 
@@ -74,16 +76,11 @@ def create_app(*, seed_dir: Path = ROOT / "seed") -> FastAPI:
             "school": {"id": school["id"], "name": school["school"]["name"], "cost": school["latest"].get("cost")},
             "major": selected,
             "data_source": "seed cache",
-            # Step 4 establishes the response contract; step 6 computes alternatives.
-            "comparisons": [
-                {"kind": kind, "label": label, "status": "not_implemented",
-                 "message": "Comparison calculations are scheduled for build-order step 6.", "result": None}
-                for kind, label in (
-                    ("in_state_public", "Same major at an in-state public school"),
-                    ("community_college_transfer", "Two years at community college, then transfer"),
-                    ("same_school_different_major", "Different major at the same school"),
-                )
-            ],
+            "comparisons": compare_paths(
+                school, selected, choices["majors"], body.loan_amount,
+                **comparison_catalog(scorecard, school, choices["majors"], body.major.credential_level),
+                overrides=body.overrides.model_dump(),
+            ),
         }
 
     return app

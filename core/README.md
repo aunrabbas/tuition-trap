@@ -43,6 +43,48 @@ The defaults follow AGENTS.md:
 Zero borrowing returns `state="empty"`, an instructional message, no schedule,
 and `hero_monthly_payment=None`. Rendering is left to the later web step.
 
+## Comparison engine (step 6)
+
+`core.comparisons.compare_paths` accepts already validated institution/program
+records. It performs no I/O and uses `analyze` for every scenario, returning the
+same metrics and complete amortization schedules. `data/comparisons.py` loads
+the curated cached candidates; the API assembles the response.
+
+- In-state public: match the exact CIP-4 code and credential at another cached
+  Pennsylvania public institution (Pitt or Penn State). Select the lowest
+  reported in-state tuition, breaking ties by institution ID. If the other
+  school is more expensive, report increased debt rather than claim savings.
+- Transfer: two years at CCAC, then two at the selected school, with the
+  selected bachelor's program's earnings. Requires four total school years
+  and a bachelor's credential; does not substitute associate earnings or
+  silently override a user-selected duration. Transfer credit, admission,
+  and four-year completion are assumptions, not verified articulation agreements.
+- Other major: highest reported median earnings among other programs at the
+  same school and credential, breaking ties by CIP code. Debt and terms remain
+  unchanged; this is not a claim of lower tuition or a career recommendation.
+
+The cost model is an explicit estimate: annual debt equals
+`max(0, original_total_debt / years + alternative_tuition - original_tuition)`.
+Other spending and non-loan funding stay constant. Published in-state tuition
+eligibility is assumed; tuition inflation, changes in aid, housing, and fees
+are not modeled. Unused annual savings are not carried forward. This avoids
+inventing a financial-aid package or treating sticker cost as the user's debt.
+No cost ratio or division by tuition is used. Zero tuition is valid; missing,
+suppressed, negative, or non-finite tuition disables the affected scenario.
+
+Transfer uses `disbursement_weights` on `analyze` / `capitalize` to accrue
+interest against the actual borrowing distribution, including years with no
+borrowing. Federal, private, and subsidized principal are spread proportionally
+across years after applying the existing aggregate caps. The existing annual
+limit warnings still apply; this is not an annual eligibility determination.
+Default primary analyses retain their original equal-year calculations.
+
+All loan and tax overrides carry into comparisons. Ready scenarios include
+their assumptions, annual tuition, annual borrowing, and signed borrowing
+reduction. Missing alternative caches or program earnings produce an explicit
+unavailable reason without discarding the primary estimate. No institution-wide
+earnings or major-title crosswalk is used.
+
 ## Sources and verification
 
 Source comments sit beside the constants. Federal 2026 brackets and the standard
