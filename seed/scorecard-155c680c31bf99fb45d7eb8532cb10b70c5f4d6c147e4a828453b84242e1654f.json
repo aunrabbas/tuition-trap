@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "source": "U.S. Department of Education College Scorecard API",
+  "retrieved_at_utc": "2026-09-19T17:10:36.066081+00:00",
+  "request": {
+    "school.name": "New York University",
+    "fields": "id,school.name",
+    "page": 0,
+    "keys_nested": "true",
+    "all_programs_nested": "true",
+    "per_page": 100
+  },
+  "response": {
+    "metadata": {
+      "page": 0,
+      "total": 12,
+      "per_page": 100
+    },
+    "results": [
+      {
+        "school": {
+          "name": "State University of New York at New Paltz"
+        },
+        "id": 196176
+      },
+      {
+        "school": {
+          "name": "Dominican University New York"
+        },
+        "id": 190761
+      },
+      {
+        "school": {
+          "name": "St. John's University-New York"
+        },
+        "id": 195809
+      },
+      {
+        "school": {
+          "name": "University at Buffalo"
+        },
+        "id": 196088
+      },
+      {
+        "school": {
+          "name": "Columbia University in the City of New York"
+        },
+        "id": 190150
+      },
+      {
+        "school": {
+          "name": "CUNY Graduate School and University Center"
+        },
+        "id": 190576
+      },
+      {
+        "school": {
+          "name": "Stony Brook University"
+        },
+        "id": 196097
+      },
+      {
+        "school": {
+          "name": "New York University"
+        },
+        "id": 193900
+      },
+      {
+        "school": {
+          "name": "St. Joseph's University-New York"
+        },
+        "id": 195544
+      },
+      {
+        "school": {
+          "name": "State University of New York at Cortland"
+        },
+        "id": 196149
+      },
+      {
+        "school": {
+          "name": "State University of New York at Oswego"
+        },
+        "id": 196194
+      },
+      {
+        "school": {
+          "name": "State University of New York at Plattsburgh"
+        },
+        "id": 196246
+      }
+    ]
+  }
+}

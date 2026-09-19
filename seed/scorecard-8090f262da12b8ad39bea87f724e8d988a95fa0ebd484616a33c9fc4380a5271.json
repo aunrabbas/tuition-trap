@@ -1,0 +1,154 @@
+{
+  "schema_version": 1,
+  "source": "U.S. Department of Education College Scorecard API",
+  "retrieved_at_utc": "2026-09-19T17:10:28.835846+00:00",
+  "request": {
+    "school.name": "Pennsylvania State University",
+    "fields": "id,school.name",
+    "page": 0,
+    "keys_nested": "true",
+    "all_programs_nested": "true",
+    "per_page": 100
+  },
+  "response": {
+    "metadata": {
+      "page": 0,
+      "total": 22,
+      "per_page": 100
+    },
+    "results": [
+      {
+        "school": {
+          "name": "Pennsylvania State University-Penn State Berks"
+        },
+        "id": 214704
+      },
+      {
+        "school": {
+          "name": "Pennsylvania State University-Penn State Abington"
+        },
+        "id": 214801
+      },
+      {
+        "school": {
+          "name": "Pennsylvania State University-Penn State Mont Alto"
+        },
+        "id": 214795
+      },
+      {
+        "school": {
+          "name": "Pennsylvania State University-Penn State Greater Allegheny"
+        },
+        "id": 214786
+      },
+      {
+        "school": {
+          "name": "Pennsylvania State University-Penn State Schuylkill"
+        },
+        "id": 214810
+      },
+      {
+        "school": {
+          "name": "Pennsylvania State University-Penn State Hazleton"
+        },
+        "id": 214768
+      },
+      {
+        "school": {
+          "name": "Pennsylvania State University-Penn State Fayette- Eberly"
+        },
+        "id": 214759
+      },
+      {
+        "school": {
+          "name": "Pennsylvania State University-Penn State DuBois"
+        },
+        "id": 214740
+      },
+      {
+        "school": {
+          "name": "Pennsylvania State University-Penn State Brandywine"
+        },
+        "id": 214731
+      },
+      {
+        "school": {
+          "name": "Pennsylvania State University-Penn State Harrisburg"
+        },
+        "id": 214713
+      },
+      {
+        "school": {
+          "name": "Pennsylvania State University-Penn State Beaver"
+        },
+        "id": 214698
+      },
+      {
+        "school": {
+          "name": "Pennsylvania State University-Penn State Altoona"
+        },
+        "id": 214689
+      },
+      {
+        "school": {
+          "name": "Pennsylvania State University-Penn State Lehigh Valley"
+        },
+        "id": 214670
+      },
+      {
+        "school": {
+          "name": "Pennsylvania State University-Penn State Scranton"
+        },
+        "id": 214652
+      },
+      {
+        "school": {
+          "name": "Pennsylvania State University-Penn State York"
+        },
+        "id": 214829
+      },
+      {
+        "school": {
+          "name": "Pennsylvania State University-Penn State Shenango"
+        },
+        "id": 214634
+      },
+      {
+        "school": {
+          "name": "Pennsylvania State University-Penn State New Kensington"
+        },
+        "id": 214625
+      },
+      {
+        "school": {
+          "name": "Pennsylvania State University-World Campus"
+        },
+        "id": 479956
+      },
+      {
+        "school": {
+          "name": "Pennsylvania State University-Penn State Erie-Behrend College"
+        },
+        "id": 214591
+      },
+      {
+        "school": {
+          "name": "Pennsylvania State University-Main Campus"
+        },
+        "id": 214777
+      },
+      {
+        "school": {
+          "name": "Pennsylvania State University-Penn State Wilkes-Barre"
+        },
+        "id": 214643
+      },
+      {
+        "school": {
+          "name": "Pennsylvania State University-Penn State Great Valley"
+        },
+        "id": 214607
+      }
+    ]
+  }
+}

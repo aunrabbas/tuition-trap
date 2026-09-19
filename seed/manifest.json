@@ -1,0 +1,44 @@
+{
+  "schools": [
+    {
+      "id": 215293,
+      "name": "University of Pittsburgh-Pittsburgh Campus",
+      "search_name": "University of Pittsburgh",
+      "demo_credential_level": 3,
+      "programs_with_median_earnings_four_years_after_completion": 122,
+      "demo_programs_with_median_earnings_four_years_after_completion": 58
+    },
+    {
+      "id": 214777,
+      "name": "Pennsylvania State University-Main Campus",
+      "search_name": "Pennsylvania State University",
+      "demo_credential_level": 3,
+      "programs_with_median_earnings_four_years_after_completion": 169,
+      "demo_programs_with_median_earnings_four_years_after_completion": 104
+    },
+    {
+      "id": 211440,
+      "name": "Carnegie Mellon University",
+      "search_name": "Carnegie Mellon University",
+      "demo_credential_level": 3,
+      "programs_with_median_earnings_four_years_after_completion": 38,
+      "demo_programs_with_median_earnings_four_years_after_completion": 22
+    },
+    {
+      "id": 210605,
+      "name": "Community College of Allegheny County",
+      "search_name": "Community College of Allegheny County",
+      "demo_credential_level": 2,
+      "programs_with_median_earnings_four_years_after_completion": 24,
+      "demo_programs_with_median_earnings_four_years_after_completion": 17
+    },
+    {
+      "id": 193900,
+      "name": "New York University",
+      "search_name": "New York University",
+      "demo_credential_level": 3,
+      "programs_with_median_earnings_four_years_after_completion": 104,
+      "demo_programs_with_median_earnings_four_years_after_completion": 44
+    }
+  ]
+}

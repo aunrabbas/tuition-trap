@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "source": "U.S. Department of Education College Scorecard API",
+  "retrieved_at_utc": "2026-09-19T17:10:25.808198+00:00",
+  "request": {
+    "school.name": "University of Pittsburgh",
+    "fields": "id,school.name",
+    "page": 0,
+    "keys_nested": "true",
+    "all_programs_nested": "true",
+    "per_page": 100
+  },
+  "response": {
+    "metadata": {
+      "page": 0,
+      "total": 5,
+      "per_page": 100
+    },
+    "results": [
+      {
+        "school": {
+          "name": "University of Pittsburgh-Pittsburgh Campus"
+        },
+        "id": 215293
+      },
+      {
+        "school": {
+          "name": "University of Pittsburgh-Bradford"
+        },
+        "id": 215266
+      },
+      {
+        "school": {
+          "name": "University of Pittsburgh-Greensburg"
+        },
+        "id": 215275
+      },
+      {
+        "school": {
+          "name": "University of Pittsburgh-Johnstown"
+        },
+        "id": 215284
+      },
+      {
+        "school": {
+          "name": "University of Pittsburgh-Titusville"
+        },
+        "id": 215309
+      }
+    ]
+  }
+}
