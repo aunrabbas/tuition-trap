@@ -1,2 +1,5 @@
-# Test runner only; core has no third-party runtime dependencies.
+# API dependencies plus test tooling; core has no third-party runtime dependencies.
+-r requirements.txt
 pytest==9.1.1
+# FastAPI TestClient uses HTTPX for in-process requests, with no listening socket.
+httpx==0.28.1
