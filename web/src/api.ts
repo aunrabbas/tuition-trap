@@ -22,7 +22,7 @@ export interface ScheduleRow {
   cumulative_interest: number
 }
 
-export interface Analysis {
+export interface SchoolAnalysis {
   school: { id: number; name: string }
   major: Major
   state: 'empty' | 'ready'
@@ -59,8 +59,24 @@ export interface Analysis {
     private_accrual: string; federal_limits: string; origination_fee: string
   }
   annual_limit_warnings: { academic_year: number; modeled_federal_principal: number; federal_annual_limit: number; modeled_subsidized_principal: number; subsidized_annual_limit: number }[]
-  comparisons: { kind: string; label: string; status: 'not_implemented'; result: null }[]
   schedule: ScheduleRow[]
+}
+
+export interface ComparisonScenario {
+  kind: 'in_state_public' | 'community_college_transfer' | 'same_school_different_major'
+  label: string
+  status: 'ready' | 'unavailable'
+  message: string
+  result: SchoolAnalysis | null
+  assumptions: string[]
+  annual_borrowing: number[]
+  annual_tuition: number[]
+  original_annual_tuition: number | null
+  borrowing_reduction: number | null
+}
+
+export interface Analysis extends SchoolAnalysis {
+  comparisons: ComparisonScenario[]
 }
 
 export async function apiRequest<T>(path: string, init?: RequestInit): Promise<T> {

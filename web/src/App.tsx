@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type CSSProperties, type FormEvent } from 'react'
 import manifest from '../../seed/manifest.json'
-import { apiRequest, type Analysis, type Major, type MajorsResponse } from './api'
+import { apiRequest, type Analysis, type Major, type MajorsResponse, type SchoolAnalysis } from './api'
 
 export const money = (value: number, cents = false) => new Intl.NumberFormat('en-US', {
   style: 'currency', currency: 'USD', minimumFractionDigits: cents ? 2 : 0, maximumFractionDigits: cents ? 2 : 0,
@@ -58,6 +58,54 @@ function BalanceChart({ result }: { result: Analysis }) {
   </figure>
 }
 
+function ComparisonMetrics({ result }: { result: SchoolAnalysis }) {
+  return <>
+    <td>{money(result.allocation.amount_borrowed)}</td>
+    <td>{money(result.median_earnings_four_years_after_completion)}</td>
+    <td>{money(result.taxes.monthly_take_home)}</td>
+    <td>{money(result.monthly_payment)}</td>
+    <td>{percent(result.burden.payment_share_of_take_home)}</td>
+    <td>{money(result.total_repaid)}</td>
+    <td className="capitalize">{result.state === 'empty' ? 'No debt' : result.burden.verdict}</td>
+  </>
+}
+
+function Comparisons({ result }: { result: Analysis }) {
+  return <section className="section" aria-labelledby="alternatives-heading">
+    <h2 id="alternatives-heading">Compare your paths</h2>
+    <p>Tuition changes your estimated borrowing dollar for dollar. Other spending and funding stay the same. A different major changes the earnings estimate, not the amount borrowed.</p>
+    <p className="comparison-note">Earnings are annual medians four years after completion. Take-home pay is monthly. Verdicts use gross income. Scroll the table horizontally to compare every figure.</p>
+    <div className="table-scroll" tabIndex={0} role="region" aria-label="Path comparison, scroll horizontally to view all columns">
+      <table className="comparison-table">
+        <caption className="sr-only">Your estimate and three alternative paths</caption>
+        <thead><tr><th scope="col">Path</th><th scope="col">Borrowed</th><th scope="col">Annual earnings</th><th scope="col">Monthly take-home</th><th scope="col">Monthly payment</th><th scope="col">Take-home share</th><th scope="col">Total repaid</th><th scope="col">Verdict</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Your selection<span className="path-description">{result.school.name}<br />{result.major.title}</span></th><ComparisonMetrics result={result} /></tr>
+          {result.comparisons.map(item => <tr key={item.kind} data-scenario={item.kind}>
+            <th scope="row">{item.label}
+              {item.result && <span className="path-description">{item.result.school.name}<br />{item.result.major.title}</span>}
+              {item.result?.allocation.has_private_debt && <span className="path-description">Includes {money(item.result.allocation.private_principal)} in private debt.</span>}
+              {!!item.result?.annual_limit_warnings.length && <span className="path-description">Annual federal borrowing limits are exceeded. Actual private debt may be higher.</span>}
+            </th>
+            {item.status === 'ready' && item.result ? <ComparisonMetrics result={item.result} /> : <td colSpan={7} className="unavailable">Estimate unavailable. {item.message}</td>}
+          </tr>)}
+        </tbody>
+      </table>
+    </div>
+    <details className="comparison-assumptions">
+      <summary>Comparison assumptions and borrowing by year</summary>
+      {result.comparisons.filter(item => item.status === 'ready' && item.result).map(item => <div key={item.kind} className="comparison-method">
+        <h3>{item.label}</h3>
+        <p>{item.message}</p>
+        {item.assumptions.map(assumption => <p key={assumption}>{assumption}</p>)}
+        {item.original_annual_tuition !== null && <p>Original annual tuition: <span className="figure">{money(item.original_annual_tuition)}</span>. Alternative tuition by academic year: <span className="figure">{item.annual_tuition.map(value => money(value)).join(' / ')}</span>.</p>}
+        <p>Estimated borrowing by academic year: <span className="figure">{item.annual_borrowing.map(value => money(value, true)).join(' / ')}</span>. {item.borrowing_reduction === 0 ? 'Your total borrowing is unchanged.' : <>{item.borrowing_reduction! > 0 ? 'Borrowing decreases by ' : 'Borrowing increases by '}<span className="figure">{money(Math.abs(item.borrowing_reduction!), true)}</span>.</>}</p>
+        <p>Balance at repayment: <span className="figure">{money(item.result!.repayment_principal, true)}</span>. All repayment and tax assumptions match your selection.</p>
+      </div>)}
+    </details>
+  </section>
+}
+
 function Results({ result }: { result: Analysis }) {
   const { allocation: a, assumptions: s, taxes: t, burden: b } = result
   const share = b.payment_share_of_take_home
@@ -104,11 +152,7 @@ function Results({ result }: { result: Analysis }) {
       </details>
     </section>
 
-    <section className="section" aria-labelledby="alternatives-heading">
-      <h2 id="alternatives-heading">Compare your paths</h2>
-      <p>Alternative estimates are not available yet. No savings are assumed.</p>
-      <div className="table-scroll" tabIndex={0} role="region" aria-label="Path comparison, scroll horizontally to view all columns"><table className="comparison-table"><caption className="sr-only">Your estimate and availability of alternative paths</caption><thead><tr><th scope="col">Path</th><th scope="col">Monthly payment</th><th scope="col">Take-home share</th><th scope="col">Total repaid</th><th scope="col">Verdict</th></tr></thead><tbody><tr><th scope="row">Your selection</th><td>{money(result.monthly_payment)}</td><td>{percent(share)}</td><td>{money(result.total_repaid)}</td><td className="capitalize">{b.verdict}</td></tr>{result.comparisons.map(item => <tr key={item.kind}><th scope="row">{item.label}</th><td colSpan={4} className="unavailable">Estimate unavailable</td></tr>)}</tbody></table></div>
-    </section>
+    <Comparisons result={result} />
 
     <section className="section assumptions" aria-labelledby="assumptions-heading">
       <h2 id="assumptions-heading">What this estimate assumes</h2>

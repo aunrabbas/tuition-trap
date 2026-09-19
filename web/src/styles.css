@@ -108,8 +108,17 @@ thead th { font-size: 14px; font-weight: 500; color: var(--ink-soft); vertical-a
 th:first-child { text-align: left; padding-left: 0; }
 td:last-child, th:last-child { padding-right: 0; }
 tbody th { font-size: 16px; font-weight: 500; white-space: normal; min-width: 180px; max-width: 290px; }
-.comparison-table { min-width: 760px; }
-.comparison-table .unavailable { text-align: left; color: var(--ink-soft); font-size: 16px; font-weight: 400; }
+.comparison-table { min-width: 1080px; table-layout: fixed; }
+.comparison-table th, .comparison-table td { padding-inline: 8px; }
+.comparison-table th:first-child { width: 240px; padding-left: 0; }
+.comparison-table th:last-child, .comparison-table td:last-child { padding-right: 0; }
+.comparison-table thead th { white-space: normal; line-height: 1.4; }
+.comparison-table .unavailable { text-align: left; color: var(--ink-soft); font-size: 16px; font-weight: 400; white-space: normal; }
+.comparison-table tbody th { min-width: 240px; }
+.path-description { display: block; margin-top: 8px; font-size: 14px; font-weight: 400; color: var(--ink-soft); }
+.comparison-note { color: var(--ink-soft); }
+.comparison-assumptions { margin-top: 20px; }
+.comparison-method { border-top: 1px solid var(--rule); padding-bottom: 16px; }
 .schedule-table { min-width: 850px; }
 .schedule-table tbody th { min-width: auto; font-size: inherit; }
 .assumptions p { color: var(--ink-soft); }

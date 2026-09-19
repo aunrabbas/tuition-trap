@@ -136,3 +136,47 @@ test('API errors are actionable and retryable; keyboard focus is visible', async
   const outline = await page.locator(':focus-visible').evaluate(element => getComputedStyle(element).outlineStyle)
   expect(outline).toBe('solid')
 })
+
+test('all three comparisons render actual API metrics and explain borrowing assumptions', async ({ page }, testInfo) => {
+  const result = await calculate(page)
+  if (testInfo.project.name === 'desktop') {
+    await expect.poll(() => page.locator('.comparison-table').evaluate(table => table.scrollWidth <= table.parentElement!.clientWidth)).toBe(true)
+  }
+  const dollars = (value: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(value)
+  for (const scenario of result.comparisons) {
+    expect(scenario.status).toBe('ready')
+    const row = page.locator(`[data-scenario="${scenario.kind}"]`)
+    const expected = scenario.result
+    await expect(row.locator('th')).toContainText(expected.school.name)
+    await expect(row.locator('th')).toContainText(expected.major.title)
+    await expect(row.locator('td')).toHaveText([
+      dollars(expected.allocation.amount_borrowed),
+      dollars(expected.median_earnings_four_years_after_completion),
+      dollars(expected.taxes.monthly_take_home),
+      dollars(expected.monthly_payment),
+      `${(expected.burden.payment_share_of_take_home * 100).toFixed(1)}%`,
+      dollars(expected.total_repaid),
+      expected.burden.verdict,
+    ])
+  }
+  await page.getByText('Comparison assumptions and borrowing by year', { exact: true }).click()
+  await expect(page.locator('.comparison-method').nth(1)).toContainText('$2,916.00 / $2,916.00 / $20,000.00 / $20,000.00')
+  await expect(page.locator('.comparison-method').nth(1)).toContainText('not guaranteed')
+  await expect(page.locator('.comparison-method').nth(2)).toContainText('Your total borrowing is unchanged.')
+  await noPageOverflow(page)
+  await page.locator('.comparison-assumptions summary').click()
+  await page.getByRole('heading', { name: 'Compare your paths' }).scrollIntoViewIfNeeded()
+  await page.screenshot({ path: testInfo.outputPath('comparisons.png') })
+})
+
+test('unavailable comparison explains why and does not fabricate numbers', async ({ page }) => {
+  await chooseMajor(page)
+  await page.getByText('Adjust borrowing and tax assumptions', { exact: true }).click()
+  await page.getByLabel('Years in school', { exact: true }).fill('3')
+  await page.getByRole('button', { name: 'See your payment' }).click()
+  const row = page.locator('[data-scenario="community_college_transfer"]')
+  await expect(row).toContainText("The two-plus-two path requires a bachelor's program with four total years in school.")
+  await expect(row.locator('td')).toHaveCount(1)
+  await expect(row).not.toContainText('$0')
+  await noPageOverflow(page)
+})
