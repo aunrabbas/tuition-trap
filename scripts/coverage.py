@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Step 1: inspect real CIP-4 earnings coverage; cache the API response."""
+"""Step 1: inspect CIP-4 median earnings four years after completion; cache the response."""
 
 import argparse
 import hashlib
@@ -83,12 +83,12 @@ def main():
     bachelors = [p for p in programs if p["credential"]["level"] == 3]
     print(f"School: {school['school']['name']} (ID {school['id']})")
     print(f"Source: {source}")
-    print(f"Earnings field: {EARNINGS_FIELD}")
-    print("Measure: median annual earnings 4 years after completion")
-    print(f"CIP-4 programs with non-null median earnings (all credentials): {len(covered)} / {len(programs)}")
-    print(f"Bachelor's programs with non-null median earnings: {sum(earnings(p) is not None for p in bachelors)} / {len(bachelors)}")
+    print(f"Median earnings four years after completion field: {EARNINGS_FIELD}")
+    print("Measure: median earnings four years after completion (annual dollars)")
+    print(f"CIP-4 programs with non-null median earnings four years after completion (all credentials): {len(covered)} / {len(programs)}")
+    print(f"Bachelor's programs with non-null median earnings four years after completion: {sum(earnings(p) is not None for p in bachelors)} / {len(bachelors)}")
     if not covered:
-        print("No field-of-study earnings are available for this school.")
+        print("No field-of-study median earnings four years after completion are available for this school.")
         return
     named = [p for p in bachelors if p["title"].rstrip(".").casefold() == args.program.rstrip(".").casefold()]
     if len(named) != 1:
@@ -96,7 +96,7 @@ def main():
     p = named[0]
     amount = earnings(p)
     print(f"Program: {p['title']} (CIP {p['code']}, {p['credential']['title']})")
-    print(f"Median annual earnings: ${amount:,.0f}" if amount is not None else "Median annual earnings: unavailable (null/suppressed)")
+    print(f"Median earnings four years after completion (annual dollars): ${amount:,.0f}" if amount is not None else "Median earnings four years after completion: unavailable (null/suppressed)")
 
 
 if __name__ == "__main__":
