@@ -141,8 +141,8 @@ scripts/    coverage and seed-fetch utilities
 tests/      199 Python tests, 9 browser tests
 ```
 
-`core/` is deliberately free of I/O, so the modeling can be verified in isolation and the front end swapped without touching it. `core/` also has **zero third-party dependencies** — standard library only. Every API response is cached to `seed/` and read from disk by default, which means the app runs with networking fully disabled. That's also why it works on conference wifi.
-
+`core/` is deliberately free of I/O, so the modeling can be verified in isolation, and the front end swapped without touching it. `core/` also has **zero third-party dependencies** — standard library only. Every API response is cached to `seed/` and read from disk by default, which means the app runs with networking fully disabled. That's also why it works on conference wifi.
+     
 <details>
 <summary><b>Module breakdown</b></summary>
 
@@ -201,7 +201,7 @@ Every one of these is visible in the interface, not buried in code.
 
 - Income-driven repayment comparison
 - PSLF eligibility
-- Refinancing scenarios
+- Refinancing scenarios 
 - Parent PLUS modeling
 - Multi-state tax support
 - Cost-of-living adjustment by metro, so a $108,680 median in Pittsburgh and San Francisco stop looking like the same number
